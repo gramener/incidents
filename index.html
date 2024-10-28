@@ -12,6 +12,16 @@
     .narrative {
       max-width: 40rem;
     }
+
+    #sankey .link {
+      opacity: 0;
+      stroke: var(--bs-body-bg);
+      stroke-width: 1px;
+    }
+
+    #sankey .link.show {
+      opacity: 1;
+    }
   </style>
 </head>
 
@@ -53,9 +63,21 @@
     </form>
 
     <div id="result" class="d-none">
-      <input type="range" min="0" max="1" value="0.5" step="0.001" id="scale" class="form-range">
-
-      <svg width="1000" height="400" id="sankey" class="d-block mx-auto"></svg>
+      <div class="container">
+        <div class="row g-2">
+          <div class="col-md flex-grow-0">
+            <label class="form-check-label text-nowrap" for="show-links">Show links</label>
+            <div class="form-check form-switch mt-2">
+              <input class="form-check-input" type="checkbox" role="switch" id="show-links">
+            </div>
+          </div>
+          <div class="col-md">
+            <label for="threshold" class="form-label">Filter by duration</label>
+            <input type="range" class="form-range" id="threshold" min="0" max="1" step="0.001">
+          </div>
+        </div>
+      </div>
+      <svg width="1000" height="400" id="sankey" fill="currentColor" class="d-block mx-auto"></svg>
     </div>
 
   </div>
