@@ -1,42 +1,53 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
-import { render, html } from "https://cdn.jsdelivr.net/npm/lit-html@3/+esm";
-import { sankey } from "https://cdn.jsdelivr.net/npm/@gramex/sankey@1";
 import { layer } from "https://cdn.jsdelivr.net/npm/@gramex/chartbase@1";
+import { sankey } from "https://cdn.jsdelivr.net/npm/@gramex/sankey@1";
+import { network } from "https://cdn.jsdelivr.net/npm/@gramex/network@2/dist/network.js";
+import { kpartite } from "https://cdn.jsdelivr.net/npm/@gramex/network@2/dist/kpartite.js";
+import { num0, num2 } from "https://cdn.jsdelivr.net/npm/@gramex/ui@0.3/dist/format.js";
 
 const $upload = document.getElementById("upload");
 const $result = document.getElementById("result");
 const $showLinks = document.getElementById("show-links");
 const $threshold = document.getElementById("threshold");
 const $sankey = document.getElementById("sankey");
-let data;
-let graph;
+const $network = document.getElementById("network");
+let data = {};
+let graphs = {};
 let extent;
 let threshold = $threshold.value;
 let colorScale;
 
-// When a file is uploaded, read it as CSV and parse it
+// When incidents or network are uploaded, read it as CSV and parse it
 $upload.addEventListener("change", async (e) => {
-  const file = e.target.files[0];
+  data[e.target.getAttribute("name")] = await readCSV(e.target.files[0]);
+  draw();
+});
+
+async function readCSV(file) {
   const fileReader = new FileReader();
-  const result = await new Promise((resolve) => {
+  return new Promise((resolve) => {
     fileReader.onload = (e) => resolve(d3.dsvFormat(",").parse(e.target.result, d3.autoType));
     fileReader.readAsText(file);
   });
-  data = await result;
+}
 
+function draw() {
   $result.classList.remove("d-none");
-  draw(data);
-});
+  if (!data.incidents) return;
+  drawSankey();
+  if (data.relations) drawNetwork();
+}
 
-function draw(data) {
-  graph = sankey($sankey, {
-    data: data,
+function drawSankey() {
+  const graph = sankey($sankey, {
+    data: data.incidents,
     labelWidth: 100,
-    categories: { Shift: "Shift", Area: "Area impacted", "Team type": "Team type" },
-    size: () => 1,
+    categories: ["Shift", "Area", "Team"],
+    size: (d) => d.Count,
     text: (d) => (d.width > 20 ? d.key : null),
     d3,
   });
+  graphs.sankey = graph;
 
   // Calculate average duration
   graph.nodeData.forEach((d) => (d.Hours = d3.sum(d.group, (d) => d.Hours) / d.group.length));
@@ -57,9 +68,12 @@ function draw(data) {
   d3.sort(graph.linkData, (d) => d.Hours).forEach((d, i) => (d.percentrank = i / (graph.linkData.length - 1)));
 
   // Add tooltip
-  layer(graph.nodes, "title", "tooltip").text((d) => d.Hours);
-  layer(graph.links, "title", "tooltip").text((d) => d.Hours);
+  graph.nodes.attr("data-bs-toggle", "tooltip").attr("title", (d) => `${d.key}: ${num2(d.Hours)} hours`);
+  graph.links
+    .attr("data-bs-toggle", "tooltip")
+    .attr("title", (d) => `${d.source.key} - ${d.target.key}: ${num2(d.Hours)} hours`);
 
+  // Define the color scale
   colorScale = d3
     .scaleLinear()
     .domain(extent)
@@ -67,21 +81,63 @@ function draw(data) {
     .interpolate(d3.interpolateLab)
     .clamp(true);
 
-  // Style the Sankey
+  // Style the text labels
   graph.texts.attr("fill", "black");
   colorSankey();
 }
 
 function colorSankey() {
-  graph.nodes.attr("fill", (d, i) => (d.percentrank > threshold ? colorScale(d.Hours) : "#e5e5e5"));
-  graph.links.attr("fill", (d, i) => (d.percentrank > threshold ? colorScale(d.Hours) : "#e5e5e5"));
+  graphs.sankey.nodes.attr("fill", (d) => (d.percentrank > threshold ? colorScale(d.Hours) : "var(--disabled-node)"));
+  graphs.sankey.links.attr("fill", (d) => (d.percentrank > threshold ? colorScale(d.Hours) : "var(--disabled-link)"));
 }
 
 $showLinks.addEventListener("change", () => {
-  graph.links.classed("show", $showLinks.checked);
+  graphs.sankey.links.classed("show", $showLinks.checked);
 });
 
 $threshold.addEventListener("input", () => {
   threshold = $threshold.value;
   colorSankey();
 });
+
+function drawNetwork() {
+  const { nodes, links } = kpartite(
+    data.relations,
+    [
+      ["name", "Source"],
+      ["name", "Target"],
+    ],
+    { count: 1 }
+  );
+  const serviceStats = d3.rollup(
+    data.incidents,
+    (v) => ({ TotalHours: d3.sum(v, (d) => d.Hours), Count: v.length }),
+    (d) => d.Service
+  );
+
+  for (const node of nodes) {
+    Object.assign(node, serviceStats.get(node.value) || { TotalHours: 0, Count: 0 });
+    node.Hours = node.TotalHours / node.Count;
+  }
+
+  const forces = {
+    charge: () => d3.forceManyBody().strength(-200),
+  };
+  const graph = network($network, { nodes, links, forces, d3 });
+  graphs.network = graph;
+  const rScale = d3
+    .scaleSqrt()
+    .domain([0, d3.max(nodes, (d) => d.Count)])
+    .range([1, 30]);
+  // const colorScale = d3.scaleSequential(d3.interpolateRdYlGn).domain([0, d3.max(nodes, (d) => d.Hours)]);
+  graph.nodes
+    .attr("fill", (d) => colorScale(d.Hours))
+    .attr("stroke", "white")
+    .attr("r", (d) => rScale(d.Count))
+    .attr("data-bs-toggle", "tooltip")
+    .attr("title", (d) => `${d.value}: ${num2(d.Hours)} hours, ${num0(d.Count)} incidents`);
+  graph.links.attr("marker-end", "url(#triangle)").attr("stroke", "rgba(0,0,0,0.2)");
+}
+
+new bootstrap.Tooltip($sankey, { selector: '[data-bs-toggle="tooltip"]' });
+new bootstrap.Tooltip($network, { selector: '[data-bs-toggle="tooltip"]' });

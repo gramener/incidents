@@ -13,6 +13,11 @@
       max-width: 40rem;
     }
 
+    #sankey {
+      --disabled-node: rgba(var(--bs-body-color-rgb), 0.4);
+      --disabled-link: rgba(var(--bs-body-color-rgb), 0.2);
+    }
+
     #sankey .link {
       opacity: 0;
       stroke: var(--bs-body-bg);
@@ -55,10 +60,18 @@
       <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. </p>
     </div>
 
-    <form id="upload" class="mt-5 mx-auto narrative">
-      <div class="mb-3">
-        <label for="file" class="form-label">Upload CSV with incident data</label>
-        <input class="form-control" type="file" id="file" name="file" accept=".csv" />
+    <form id="upload" class="container mt-5">
+      <div class="row">
+        <div class="col-md mb-3">
+          <label for="incidents" class="form-label">Upload <strong>Incidents</strong> .CSV</label>
+          <input class="form-control" type="file" id="incidents" name="incidents" accept=".csv" />
+          <p class="form-text"><em>Columns</em>: Service, Shift, Area, Team, Count, Hours</p>
+        </div>
+        <div class="col-md mb-3">
+          <label for="relations" class="form-label">Upload <strong>Service Impact</strong> .CSV</label>
+          <input class="form-control" type="file" id="relations" name="relations" accept=".csv" />
+          <p class="form-text"><em>Columns</em>: Source, Target</p>
+        </div>
       </div>
     </form>
 
@@ -78,6 +91,21 @@
         </div>
       </div>
       <svg width="1000" height="400" id="sankey" fill="currentColor" class="d-block mx-auto"></svg>
+      <svg width="1200" height="1200" id="network" fill="currentColor" class="d-block mx-auto">
+        <defs>
+          <marker
+            id="triangle"
+            viewBox="0 0 10 10"
+            refX="20"
+            refY="5"
+            markerUnits="strokeWidth"
+            markerWidth="5"
+            markerHeight="5"
+            orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(128,0,0,0.2)" />
+          </marker>
+        </defs>
+      </svg>
     </div>
 
   </div>
