@@ -1,0 +1,22 @@
+.narrative {
+  max-width: 40rem;
+}
+
+#sankey {
+  --disabled-node: rgba(var(--bs-body-color-rgb), 0.4);
+  --disabled-link: rgba(var(--bs-body-color-rgb), 0.2);
+}
+
+#sankey .link {
+  opacity: 0;
+  stroke: var(--bs-body-bg);
+  stroke-width: 1px;
+}
+
+#sankey .link.show {
+  opacity: 1;
+}
+
+#summary li p {
+  margin-bottom: 0;
+}
