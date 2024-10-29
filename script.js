@@ -180,7 +180,9 @@ function drawNetwork() {
     .attr("r", (d) => rScale(d.Count))
     .attr("data-bs-toggle", "tooltip")
     .attr("title", (d) => `${d.value}: ${num2(d.Hours)} hours, ${num0(d.Count)} incidents`);
-  graph.links.attr("marker-end", "url(#triangle)").attr("stroke", "rgba(0,0,0,0.2)");
+  graph.links
+    .attr("marker-end", "url(#triangle)")
+    .attr("stroke", "rgba(var(--bs-body-color-rgb), 0.2)");
 }
 
 new bootstrap.Tooltip($sankey, { selector: '[data-bs-toggle="tooltip"]' });
