@@ -330,6 +330,6 @@ ${top(graphs.sankey.linkData, 10, (d) => -d.Hours, linkName)}
       ],
     }),
   })) {
-    $summary.innerHTML = marked.parse(content);
+    if (content) $summary.innerHTML = marked.parse(content);
   }
 }
