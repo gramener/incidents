@@ -23,13 +23,6 @@ let threshold = $threshold.value;
 let colorScale;
 const marked = new Marked();
 
-// ----------------------------------------------------------------------------
-// TESTING CODE
-data.incidents = await d3.csv("scotiabank-incidents.csv");
-data.relations = await d3.csv("scotiabank-network.csv");
-draw();
-// ----------------------------------------------------------------------------
-
 // When incidents or network are uploaded, read it as CSV and parse it
 $upload.addEventListener("change", async (e) => {
   data[e.target.getAttribute("name")] = await readCSV(e.target.files[0]);
