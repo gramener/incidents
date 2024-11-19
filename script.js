@@ -426,7 +426,13 @@ async function summarize() {
     };
   }
 
-  const system = `As an expert analyst, provide a concise summary for the selected services, focusing on:
+  const system = `As an expert analyst in financial application's incident management, provide a concise overall summary for the selected services, focusing on:
+
+- Overall problematic services, along with teams, areas and shifts (only top 2 or 3).
+- Services, teams, areas and shifts which are way beyond thresold duration. (only top 2 or 3).
+- Narrate story flow linking services, teams, areas and shifts (in 4 points). 
+
+Then, for each service, provide a detailed summary focusing on:
 
 - Problematic times (including specific times of day)
 - Problematic areas
@@ -435,50 +441,7 @@ async function summarize() {
 - Connections with other services that might have impacted it
 - Recommendations on what can be done
 
-Present the information concisely using bullet points under each service. Ensure that the summary is directly based on the data provided and is actionable.
-
-Example for Output:
-Summary for VaR Service
-
-Problematic Times:
-  Shifts:
-    06:00-14:00: 27 incidents (Avg 4.04 hrs)
-    14:00-22:00: 5 incidents (Avg 3.24 hrs)
-  Time of Day:
-    9 AM: 11 incidents (Avg 3.57 hrs)
-    10 AM: 5 incidents (Avg 3.68 hrs)
-
-Problematic Areas:
-  Canada: 35 incidents (Avg 3.92 hrs)
-
-Problematic Teams:
-
-CMST: 17 incidents (Avg 3.92 hrs)
-ECA: 17 incidents (Avg 3.92 hrs)
-
-Frequent Issues or Incidents:
-  Delays in VaR reports due to job failures and data issues from:
-    Value job failure (1 occurrence) - Root cause under investigation.
-    Power BI data refresh errors impacting report delays (2 occurrences).
-    Scenario job issues preventing data loading (1 occurrence).
-    Long-running jobs causing delays in data processing (1 occurrence).
-    All value jobs failing in risk run (1 occurrence) - Root cause under investigation.
-
-Connections with Other Services that Might Have Impacted It:
-  GRT
-  CTR
-  Lancelot
-  LOGAN (multiple connections)
-  Anvil
-  K2
-
-Recommendations:
-  Incident Time Optimization: Focus resources and monitoring on the 06:00-14:00 shift, and particularly around 9 AM to 10 AM since these times show the highest rate of incidents.
-  Targeted Team Support: Provide additional support and resource allocation to the CMST and ECA teams to alleviate their incident load.
-  Root Cause Analysis: Conduct a thorough analysis of recurring failures in data processing, especially related to job execution and dependencies on Power BI and other connections.
-  Enhanced Communication: Streamline communication channels between VaR, VaRDevOps, MRM, and all impacted teams to reduce response times for issue triaging.
-  Preventative Measures: Implement monitoring tools that provide early alerts for long-running jobs and data process delays. Regular simulations could also help identify weaknesses in the system before they lead to significant delays.
-`;
+Present the information concisely using bullet points under each section. Ensure that the summary is directly based on the data provided and is actionable.`;
 
   let message = `Selected Services:\n${selectedServices.join(", ")}\n\n`;
 
