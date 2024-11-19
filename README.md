@@ -7,11 +7,12 @@ Interactive visualization tool for analyzing incident patterns and service impac
 - Upload and analyze incident data and service impact relationships
 - Interactive Sankey diagram showing incident flow across multiple dimensions
 - Force-directed network graph displaying service dependencies
-- AI-powered incident analysis and recommendations
+- Duration-based filtering with visual feedback
 - Dark/light theme support
 - Responsive design
 - Filter data by Area, Shift, Team, and Service
-- Duration-based filtering with visual feedback
+- AI-powered incident analysis and recommendations
+- Service Chainflow visualization for understanding service relationships
 
 ## Usage
 
@@ -38,6 +39,19 @@ Required columns:
 
 - `Source`: Source service name
 - `Target`: Target service name
+
+### Service Chainflow CSV
+
+Required columns for nodes:
+- `Service`: Service name
+- `Stage`: Stage number (0-4)
+- `Position`: Vertical position within stage
+- `Value`: Node size value
+
+Required columns for links:
+- `Source`: Source service name
+- `Target`: Target service name
+- `Value`: Link weight value
 
 ## Setup
 
@@ -81,6 +95,7 @@ On this repository's [page settings](https://github.com/gramener/incidents/setti
 - Frontend: Vanilla JavaScript with lit-html for rendering
 - LLM Integration: [LLM Foundry API](https://llmfoundry.straive.com/code) for query processing, specifically the `/openai/v1/chat/completions` endpoint with `gpt-4o-mini` model
 - Styling: Bootstrap 5.3.3 with dark mode support
+- Data Processing: D3.js for data transformation and analysis
 
 ### Dependencies
 
@@ -93,6 +108,7 @@ All dependencies are loaded via CDN:
 - [@gramex/ui](https://www.npmjs.com/package/@gramex/ui) v0.3 - Utilities
 - [marked](https://www.npmjs.com/package/marked) v13 - Markdown parsing
 - [asyncllm](https://www.npmjs.com/package/asyncllm) v1 - AI integration
+- [PapaParse](https://www.papaparse.com/) v5.3 - CSV parsing
 
 ## License
 
