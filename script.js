@@ -38,16 +38,16 @@ const filters = {};
 const filterKeys = ["Region", "Shift", "Team", "Service"];
 const preSelectedServices = [
   "CTR",
-  "LOGAN",
-  "VaR",
+  "LOAN",
+  "Risk",
   "GRT",
   "LIQ",
-  "RWH",
-  "Argos",
-  "PXV",
+  "Rates",
+  "Assets",
+  "Pricing",
   "TLM",
   "K2",
-  "TARDIS",
+  "Trading",
 ];
 const preSelectedRegions = [
   "Canada",
