@@ -1,0 +1,166 @@
+/* Node styles */
+.node {
+  stroke: white;
+  stroke-width: 0.5px;
+}
+
+/* Narrative section */
+.narrative {
+  max-width: 40rem;
+}
+
+/* Sankey diagram styles */
+#sankey {
+  --disabled-node: rgba(var(--bs-body-color-rgb), 0.4);
+  --disabled-link: rgba(var(--bs-body-color-rgb), 0.2);
+}
+
+#sankey .link {
+  opacity: 0;
+  stroke: var(--bs-body-bg);
+  stroke-width: 1px;
+}
+
+#sankey .link.show {
+  opacity: 1;
+}
+
+/* Summary section adjustments */
+#summary li p {
+  margin-bottom: 0;
+}
+
+/* Dropdown styles */
+.dropdown-menu {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.dropdown-search {
+  position: sticky;
+  top: 0;
+  background: var(--bs-body-bg);
+  padding: 8px;
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.dropdown-search input {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 4px;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+}
+
+.dropdown-item label {
+  cursor: pointer;
+  margin-bottom: 0;
+  width: 100%;
+}
+
+/* Hover effect for dropdown items */
+.dropdown-item:hover {
+  background-color: var(--bs-tertiary-bg);
+}
+
+/* Prevent text selection in dropdown items */
+.dropdown-item,
+.dropdown-item label {
+  user-select: none;
+}
+
+/* "Ask a Question" text area styles */
+#user-question {
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s, border-color 0.3s;
+}
+
+#user-question:focus {
+  border-color: #0056b3;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  outline: none;
+}
+
+/* "Ask Question" button styles */
+#ask-question {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+#ask-question:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+#ask-question:active {
+  background-color: #003d80;
+  transform: translateY(0);
+}
+
+/* Filters container */
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+/* "Show links" toggle container */
+.toggle-check-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 15px;
+}
+
+/* Slider container */
+.slide-bar {
+  flex-grow: 1;
+}
+
+/* Reset filters button */
+.reset-filters {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#reset-filters {
+  padding: 6px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+}
+
+/* Threshold value spacing */
+#threshold-value {
+  margin: 0.5rem 0;
+}
+
+/* Slider width */
+#threshold {
+  width: 100%;
+}
+
+/* Ensure labels are aligned horizontally */
+.toggle-check-box label,
+.slide-bar label {
+  font-weight: 500;
+}
