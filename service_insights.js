@@ -1,6 +1,6 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import { asyncLLM } from "https://cdn.jsdelivr.net/npm/asyncllm@1";
-import "https://unpkg.com/vis-network@9.1.2/dist/vis-network.min.js";
+import "https://cdn.jsdelivr.net/npm/vis-network@9.1.2/dist/vis-network.min.js";
 
 let serviceData = [];
 let networkInstance = null;
@@ -9,7 +9,15 @@ const dropdown = document.getElementById("serviceDropdown");
 const problemText = document.getElementById("problemText");
 const recurringList = document.getElementById("recurringList");
 const container = document.getElementById("network");
-const spinnerHTML = `<div class="loading-container"><div class="spinner-border" role="status"></div><span>Loading...</span></div>`;
+
+const spinnerHTML = `
+  <div class="d-flex align-items-center">
+    <div class="spinner-border text-primary me-2" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <span>Loading...</span>
+  </div>
+`;
 
 // Handle File Upload and Process CSV
 fileInput.addEventListener("change", async (e) => {
@@ -32,16 +40,16 @@ fileInput.addEventListener("change", async (e) => {
 // Populate Dropdown with Unique Services
 function populateDropdown() {
   dropdown.innerHTML = '<option value="">Select Service</option>';
-  
+
   const services = [...new Set(serviceData.map(item => item.Service))].filter(s => s);
   services.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
-  
-  services.forEach(service => {
+
+  for (const service of services) {
     const option = document.createElement("option");
     option.value = service;
     option.textContent = service;
     dropdown.appendChild(option);
-  });
+  }
 }
 
 // Extract only the Incident Data column
@@ -49,7 +57,7 @@ function extractIncidentData(filteredData) {
   return filteredData.map(d => d["Incident Data"]);
 }
 
-// Generic function to fetch info from the LLM
+ //Generic function to fetch info from LLM
 async function askLLMQuestion(filteredData, questionPrompt, useFullData = false) {
   const selectedService = filteredData[0]?.Service || "Unknown Service";
   const systemMessage = `You are a financial analyst for incident management.
@@ -61,7 +69,7 @@ async function askLLMQuestion(filteredData, questionPrompt, useFullData = false)
   Return your answer in plain JSON format without any code fences or markdown formatting. 
   Only return raw JSON.`;
 
-  let dataToSend = useFullData ? filteredData : extractIncidentData(filteredData);
+  const dataToSend = useFullData ? filteredData : extractIncidentData(filteredData);
 
   const userMessage = `Service: ${selectedService}
 Data:
@@ -76,7 +84,7 @@ ${JSON.stringify(dataToSend)}`;
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // rely on user session
+        credentials: "include", 
         body: JSON.stringify({
           model: "gemini-1.5-pro-latest",
           stream: true,
@@ -111,30 +119,40 @@ ${JSON.stringify(dataToSend)}`;
   }
 }
 
-// Update UI after fetching all info
 function updateUI(upstream, downstream, mainProblem, recurringPatterns) {
   // Problem Description
   problemText.textContent = mainProblem || "No problem description found.";
-
-  // Clear recurringList
-  recurringList.innerHTML = "";
-
-  // Recurring patterns
+  recurringList.innerHTML = ""; // clear recurring patterns
   if (recurringPatterns && recurringPatterns.recurringPatterns) {
     const rp = recurringPatterns.recurringPatterns;
-    let html = "";
-    html += `<li><strong>Time of Incidents:</strong> ${rp.Time || "Not available"}</li>`;
-    html += `<li><strong>Country:</strong> ${rp.Country || "Not available"}</li>`;
-    html += `<li><strong>Feeds:</strong> ${rp.Feeds || "Not available"}</li>`;
-    recurringList.innerHTML = html;
+    const items = [
+      `<li><strong>Time of Incidents:</strong> ${rp.Time || "Not available"}</li>`,
+      `<li><strong>Country:</strong> ${rp.Country || "Not available"}</li>`,
+      `<li><strong>Feeds:</strong> ${rp.Feeds || "Not available"}</li>`
+    ];
+    recurringList.innerHTML = items.join("");
   } else {
     recurringList.innerHTML = "<li>No recurring patterns found.</li>";
   }
 
-  // Draw network
-  drawNetwork(upstream || [], downstream || []);
+  if (!upstream.length) {
+    problemText.insertAdjacentHTML(
+      "beforeend",
+      `<p class="mt-2 text-danger">No upstream data found for this service.</p>`
+    );
+  }
+  if (!downstream.length) {
+    problemText.insertAdjacentHTML(
+      "beforeend",
+      `<p class="mt-2 text-danger">No downstream data found for this service.</p>`
+    );
+  }
+
+  // Finally draw the network
+  drawNetwork(upstream, downstream);
 }
 
+//Called when user selects a service
 async function updateContent(service) {
   if (!service) return;
 
@@ -146,11 +164,11 @@ async function updateContent(service) {
     return;
   }
 
-  const numIncidents = filteredData.length;
-
   // Show loading
   problemText.innerHTML = spinnerHTML;
   recurringList.innerHTML = spinnerHTML;
+
+  const numIncidents = filteredData.length;
 
   try {
     // Upstream
@@ -197,9 +215,10 @@ async function updateContent(service) {
   }
 }
 
+//Draw (or update) the network diagram
 function drawNetwork(upstream, downstream, numIncidents = 0) {
+  // If no CSV loaded or no data yet, just clear the network
   if (!upstream.length && !downstream.length && !numIncidents) {
-    // If no CSV loaded or no data yet, just clear the network
     if (networkInstance) networkInstance.destroy();
     const dataVis = { nodes: [], edges: [] };
     const options = { interaction: { zoomView: false } };
@@ -207,9 +226,7 @@ function drawNetwork(upstream, downstream, numIncidents = 0) {
     return;
   }
 
-  // Make the central node label bigger and highlight that it's the main service
-  const centralLabel = dropdown.value ;
-
+  const centralLabel = dropdown.value;
   const nodes = [
     {
       id: "central",
@@ -217,9 +234,9 @@ function drawNetwork(upstream, downstream, numIncidents = 0) {
       shape: "box",
       borderWidth: 3,
       color: { border: "orange", background: "#ffffff" },
-      font: { color: "black", face: "arial", size: 24, multi: true, bold: true },
-      x: -70, // fix x coordinate for a neat side-by-side layout
-      y: 0,   // fix y coordinate so it stays on the same row
+      font: { color: "black", face: "arial", size: 24, bold: true },
+      x: -70,
+      y: 0,
       fixed: true
     },
     {
@@ -235,7 +252,7 @@ function drawNetwork(upstream, downstream, numIncidents = 0) {
     }
   ];
 
-  // Upstream + downstream nodes
+  // Upstream nodes
   const spacing = 120;
   const startX_up = -((upstream.length - 1) * spacing) / 2;
   upstream.forEach((item, i) => {
@@ -248,10 +265,11 @@ function drawNetwork(upstream, downstream, numIncidents = 0) {
       font: { color: "black", face: "arial", size: 20 },
       x: startX_up + i * spacing,
       y: -100,
-      fixed: false // let the user drag them if desired
+      fixed: false
     });
   });
 
+  // Downstream nodes
   const startX_down = -((downstream.length - 1) * spacing) / 2;
   downstream.forEach((item, i) => {
     nodes.push({
@@ -267,7 +285,7 @@ function drawNetwork(upstream, downstream, numIncidents = 0) {
     });
   });
 
-  // Edges (only from upstream to central, and central to downstream)
+  // Edges
   const edges = [];
   upstream.forEach((_, i) => {
     edges.push({
@@ -286,15 +304,13 @@ function drawNetwork(upstream, downstream, numIncidents = 0) {
     });
   });
 
-  // NOTE: The arrow from central -> incidentCount is removed.
-
   const dataVis = {
     nodes: new vis.DataSet(nodes),
     edges: new vis.DataSet(edges)
   };
 
   const options = {
-    physics: false, // No spring physics so positions remain consistent
+    physics: false,
     interaction: {
       zoomView: false,
       dragView: true,
@@ -303,10 +319,7 @@ function drawNetwork(upstream, downstream, numIncidents = 0) {
     }
   };
 
-  // Destroy old instance if exists
   if (networkInstance) networkInstance.destroy();
-
-  // Create new instance
   networkInstance = new vis.Network(container, dataVis, options);
 }
 
