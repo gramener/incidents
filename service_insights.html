@@ -5,11 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Service Process Flow and Insights</title>
 
-  <!-- Main CSS -->
+  <!-- Custom CSS -->
   <link href="service_insights.css" rel="stylesheet"/>
-
-  <!-- Vis Network CSS -->
-  <link href="https://unpkg.com/vis-network@9.1.2/dist/vis-network.min.css" rel="stylesheet"/>
 
   <!-- Bootstrap CSS -->
   <link
@@ -31,23 +28,43 @@
   <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
     <div class="container-fluid">
       <a class="navbar-brand" href=".">Service Insights</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+        data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false"
+        aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <div class="btn-group ms-auto">
           <a href="." class="btn btn-outline-primary">Incident Analysis</a>
           <a href="services.html" class="btn btn-outline-primary">Service Chainflow</a>
-          <a href="service insights.html" class="btn btn-outline-primary active" aria-current="page"> Service Insights</a>
+          <a href="service_insights.html" class="btn btn-outline-primary active" aria-current="page">
+            Service Insights
+          </a>
         </div>
-        <div class="nav-item dropdown ms-auto" role="group" aria-label="Toggle dark mode" title="Toggle Dark Mode">
-          <button class="dark-theme-toggle btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Toggle theme (auto)">
+        <div class="nav-item dropdown ms-auto" role="group"
+          aria-label="Toggle dark mode" title="Toggle Dark Mode">
+          <button class="dark-theme-toggle btn btn-outline-light dropdown-toggle"
+            type="button" data-bs-toggle="dropdown" aria-expanded="false"
+            aria-label="Toggle theme (auto)">
             <i class="bi bi-circle-half"></i> <span class="d-lg-none ms-2">Toggle theme</span>
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li><button class="dropdown-item" data-bs-theme-value="light"><i class="me-2 bi bi-sun-fill"></i> Light</button></li>
-            <li><button class="dropdown-item" data-bs-theme-value="dark"><i class="me-2 bi bi-moon-stars-fill"></i> Dark</button></li>
-            <li><button class="dropdown-item" data-bs-theme-value="auto"><i class="me-2 bi bi-circle-half"></i> Auto</button></li>
+            <li>
+              <button class="dropdown-item" data-bs-theme-value="light">
+                <i class="me-2 bi bi-sun-fill"></i> Light
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item" data-bs-theme-value="dark">
+                <i class="me-2 bi bi-moon-stars-fill"></i> Dark
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item" data-bs-theme-value="auto">
+                <i class="me-2 bi bi-circle-half"></i> Auto
+              </button>
+            </li>
           </ul>
         </div>
       </div>
@@ -58,49 +75,50 @@
     <h1 class="display-1 my-4 text-center">Service Insights</h1>
     <h2 class="display-6 text-center">What are the main Feeds for services?</h2>
 
-    <div class="mx-auto my-3 text-nowrap narrative">
+    <div class="mx-auto my-3" style="max-width: 40rem;">
       <p>This application is designed for incident analysis, allowing users to upload CSV file containing Service data.</p>
       <p>It visualizes the relationships between different feeds on service and their impacts using Network Flow Diagram.</p>
       <p>You can use sample data from <a href="https://drive.google.com/drive/folders/1qJXojKTsVfXAPVLApNV17tvY1Keexc0C">this folder</a> if you have access.</p>
     </div>
 
-  <!-- File Upload & Service Selector -->
-  <form class="container my-4">
-    <div class="row g-3 align-items-center">
-      <div class="col-md-6">
-        <label for="fileInput" class="form-label">Upload Service Data(CSV):</label>
-        <input type="file" id="fileInput" accept=".csv" class="form-control"/>
-        <p class="form-text">Columns: Service, Incident, Time, Team</p>
+    <!-- File Upload & Service Selector -->
+    <form class="container my-4">
+      <div class="row g-3 align-items-center">
+        <div class="col-md-6">
+          <label for="fileInput" class="form-label fw-semibold text-secondary">Upload Service Data(CSV):</label>
+          <input type="file" id="fileInput" accept=".csv" class="form-control"/>
+          <p class="form-text">Columns: Service, Incident, Time, Team</p>
+        </div>
+        <div class="col-md-6">
+          <label for="serviceDropdown" class="form-label fw-semibold text-secondary">Select Service:</label>
+          <select id="serviceDropdown" class="form-select">
+            <option value="">Incident Service</option>
+          </select>
+          <p class="form-text">Example: CTR, LOGAN, K2 etc.</p>
+        </div>
       </div>
-      <div class="col-md-6">
-        <label for="serviceDropdown" class="form-label">Select Service:</label>
-        <select id="serviceDropdown" class="form-select">
-          <option value="">Incident Service</option>
-        </select>
-        <p class="form-text">Example: CTR, LOGAN, K2 etc.</p>
-      </div>
-    </div>
-  </form>
+    </form>
 
-  <!-- 2-column layout -->
-  <div class="container-fluid mt-3">
-    <div class="row">
+    <!-- 2-column layout -->
+    <div class="row mt-3">
       <!-- Left column for Problem & Recurring Patterns -->
       <div class="col-lg-4 mb-4">
-        <div class="card shadow-sm h-50">
+        <div class="card border-0 shadow-sm h-50">
           <div class="card-header bg-secondary text-white">
             <h5 class="mb-0">Problem Description</h5>
           </div>
-          <div class="card-body problem-description">
-            <p id="problemText" class="mb-0">Please upload a file and select a service to view details.</p>
+          <div class="card-body" style="min-height: 50px; transition: min-height 0.3s ease; overflow: hidden;">
+            <p id="problemText" class="mb-0 text-muted">
+              Please upload a file and select a service to view details.
+            </p>
           </div>
         </div>
-        <div class="card shadow-sm mt-4 h-100">
+        <div class="card border-0 shadow-sm mt-4 h-100">
           <div class="card-header bg-secondary text-white">
             <h5 class="mb-0">Recurring Patterns</h5>
           </div>
-          <div class="card-body recurring-patterns">
-            <ul id="recurringList" class="list-unstyled mb-0">
+          <div class="card-body" style="min-height: 50px; transition: min-height 0.3s ease; overflow: hidden;">
+            <ul id="recurringList" class="list-unstyled mb-0 text-muted">
               <li>Upload data and select a service to see recurring issues.</li>
             </ul>
           </div>
@@ -109,7 +127,7 @@
 
       <!-- Right column for the Process Flow heading + network diagram -->
       <div class="col-lg-8">
-        <div class="card shadow-sm h-200">
+        <div class="card border-0 shadow-sm h-200">
           <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Process Flow</h5>
           </div>
@@ -123,7 +141,7 @@
   </div>
 
   <!-- Dependencies -->
-  <script src="https://unpkg.com/vis-network@9.1.2/dist/vis-network.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vis-network@9.1.2/dist/vis-network.min.js"></script>
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
 
