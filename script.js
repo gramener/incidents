@@ -36,28 +36,8 @@ const filters = {};
 
 // Constants for filters and pre-selected services and regions
 const filterKeys = ["Region", "Shift", "Team", "Service"];
-const preSelectedServices = [
-  "CTR",
-  "LOAN",
-  "Risk",
-  "GRT",
-  "LIQ",
-  "Rates",
-  "Assets",
-  "Pricing",
-  "TLM",
-  "K2",
-  "Trading",
-];
-const preSelectedRegions = [
-  "Canada",
-  "Ireland",
-  "USA",
-  "UK",
-  "Global",
-  "Singapore",
-  "LATAM",
-];
+const preSelectedServices = ["CTR", "LOAN", "Risk", "GRT", "LIQ", "Rates", "Assets", "Pricing", "TLM", "K2", "Trading"];
+const preSelectedRegions = ["Canada", "Ireland", "USA", "UK", "Global", "Singapore", "LATAM"];
 
 // Function to read and parse CSV files
 async function readCSV(file) {
@@ -68,8 +48,7 @@ async function readCSV(file) {
 
     // Split 'Incident Data' into separate fields if it exists
     if (row["Incident Data"]) {
-      const [Incident, DescriptionCleaned, ImpactCleaned, ResolutionDetails] =
-        row["Incident Data"].split("|");
+      const [Incident, DescriptionCleaned, ImpactCleaned, ResolutionDetails] = row["Incident Data"].split("|");
       Object.assign(row, { Incident, DescriptionCleaned, ImpactCleaned, ResolutionDetails });
     }
 
@@ -146,8 +125,8 @@ function drawFilters() {
             </div>
             <div class="dropdown-item">
               <input type="checkbox" class="select-all" id="all-${key}" ${
-          key !== "Service" && key !== "Team" && key !== "Region" ? "checked" : ""
-        }>
+                key !== "Service" && key !== "Team" && key !== "Region" ? "checked" : ""
+              }>
               <label for="all-${key}" class="flex-grow-1">Select All</label>
             </div>
             ${
@@ -193,9 +172,9 @@ function renderFilterOptions(key) {
     .map(
       (option) => `
       <div class="dropdown-item">
-        <input type="checkbox" class="filter-checkbox" name="${key}" value="${option.value}" id="${key}-${option.value}" ${
-        option.selected ? "checked" : ""
-      }>
+        <input type="checkbox" class="filter-checkbox" name="${key}" value="${option.value}" id="${key}-${
+          option.value
+        }" ${option.selected ? "checked" : ""}>
         <label for="${key}-${option.value}" class="flex-grow-1">${option.value}</label>
       </div>
     `
@@ -313,9 +292,7 @@ function filteredIncidents() {
   });
 
   return data.incidents.filter((row) =>
-    filterKeys.every(
-      (key) => selectedValues[key].length === 0 || selectedValues[key].includes(row[key])
-    )
+    filterKeys.every((key) => selectedValues[key].length === 0 || selectedValues[key].includes(row[key]))
   );
 }
 
@@ -354,14 +331,12 @@ function drawSankey() {
   adjustHoursAndSize(graph.linkData);
 
   // Add tooltips with alternative Team names
-  graph.nodes
-    .attr("data-bs-toggle", "tooltip")
-    .attr("title", function (d) {
-      const teamFullName = teamAcroToName[d.key];
-      return teamFullName && teamFullName !== d.key
-        ? `${teamFullName}: ${num2(d.Hours)} hours`
-        : `${d.key}: ${num2(d.Hours)} hours`;
-    });
+  graph.nodes.attr("data-bs-toggle", "tooltip").attr("title", function (d) {
+    const teamFullName = teamAcroToName[d.key];
+    return teamFullName && teamFullName !== d.key
+      ? `${teamFullName}: ${num2(d.Hours)} hours`
+      : `${d.key}: ${num2(d.Hours)} hours`;
+  });
 
   graph.links
     .attr("data-bs-toggle", "tooltip")
@@ -474,9 +449,7 @@ function drawNetwork() {
     .attr("title", (d) => `${d.value}: ${num2(d.Hours)} hours, ${num0(d.Count)} incidents`);
 
   // Style links
-  graph.links
-    .attr("marker-end", "url(#triangle)")
-    .attr("stroke", "rgba(var(--bs-body-color-rgb), 0.2)");
+  graph.links.attr("marker-end", "url(#triangle)").attr("stroke", "rgba(var(--bs-body-color-rgb), 0.2)");
 
   // Initialize Bootstrap tooltips
   initializeTooltips();
@@ -594,22 +567,19 @@ Present the information concisely using bullet points under each section. Ensure
   try {
     let fullContent = "";
     let lastContent = "";
-    for await (const { content } of asyncLLM(
-      "https://llmfoundry.straive.com/openai/v1/chat/completions",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          stream: true,
-          messages: [
-            { role: "system", content: system },
-            { role: "user", content: message },
-          ],
-        }),
-      }
-    )) {
+    for await (const { content } of asyncLLM("https://llmfoundry.straive.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        stream: true,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: message },
+        ],
+      }),
+    })) {
       if (content && content !== lastContent) {
         lastContent = content;
         fullContent = content;
@@ -701,9 +671,7 @@ Present the information concisely and ensure that the answer is directly based o
   // Include overall statistics
   const overallStats = computeStats(incidents, "Service");
   overallStats.forEach((stat) => {
-    message += `- Service ${stat.Service}: ${num0(stat.Count)} incidents, Avg Duration: ${num2(
-      stat.AvgHours
-    )} hours\n`;
+    message += `- Service ${stat.Service}: ${num0(stat.Count)} incidents, Avg Duration: ${num2(stat.AvgHours)} hours\n`;
   });
 
   // Append per-service summaries
@@ -727,22 +695,19 @@ Present the information concisely and ensure that the answer is directly based o
   try {
     let fullContent = "";
     let lastContent = "";
-    for await (const { content } of asyncLLM(
-      "https://llmfoundry.straive.com/openai/v1/chat/completions",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          stream: true,
-          messages: [
-            { role: "system", content: system },
-            { role: "user", content: message },
-          ],
-        }),
-      }
-    )) {
+    for await (const { content } of asyncLLM("https://llmfoundry.straive.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        stream: true,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: message },
+        ],
+      }),
+    })) {
       if (content && content !== lastContent) {
         lastContent = content;
         fullContent = content;
@@ -781,10 +746,7 @@ function formatTopStats(title, statsArray, keyName) {
   if (topStats.length === 0) return "";
   let result = `- ${title}:\n`;
   result += topStats
-    .map(
-      (item) =>
-        `  ${item[keyName]}: ${num0(item.Count)} incidents (Avg ${num2(item.AvgHours)} hrs)`
-    )
+    .map((item) => `  ${item[keyName]}: ${num0(item.Count)} incidents (Avg ${num2(item.AvgHours)} hrs)`)
     .join("\n");
   return result + "\n\n";
 }
@@ -801,24 +763,14 @@ function formatServiceStats(data) {
     if (topShifts.length > 0) {
       result += `  Shifts:\n`;
       result += topShifts
-        .map(
-          (shift) =>
-            `    ${shift.Shift}: ${num0(shift.Count)} incidents (Avg ${num2(
-              shift.AvgHours
-            )} hrs)`
-        )
+        .map((shift) => `    ${shift.Shift}: ${num0(shift.Count)} incidents (Avg ${num2(shift.AvgHours)} hrs)`)
         .join("\n");
       result += "\n";
     }
     if (topTimesOfDay.length > 0) {
       result += `  Time of Day:\n`;
       result += topTimesOfDay
-        .map(
-          (time) =>
-            `    ${time["Time of Day"]}: ${num0(time.Count)} incidents (Avg ${num2(
-              time.AvgHours
-            )} hrs)`
-        )
+        .map((time) => `    ${time["Time of Day"]}: ${num0(time.Count)} incidents (Avg ${num2(time.AvgHours)} hrs)`)
         .join("\n");
       result += "\n";
     }
@@ -829,12 +781,7 @@ function formatServiceStats(data) {
   if (topRegions.length > 0) {
     result += `- Problematic regions:\n`;
     result += topRegions
-      .map(
-        (region) =>
-          `  ${region.Region}: ${num0(region.Count)} incidents (Avg ${num2(
-            region.AvgHours
-          )} hrs)`
-      )
+      .map((region) => `  ${region.Region}: ${num0(region.Count)} incidents (Avg ${num2(region.AvgHours)} hrs)`)
       .join("\n");
     result += "\n";
   }
@@ -844,10 +791,7 @@ function formatServiceStats(data) {
   if (topTeams.length > 0) {
     result += `- Problematic teams:\n`;
     result += topTeams
-      .map(
-        (team) =>
-          `  ${team.Team}: ${num0(team.Count)} incidents (Avg ${num2(team.AvgHours)} hrs)`
-      )
+      .map((team) => `  ${team.Team}: ${num0(team.Count)} incidents (Avg ${num2(team.AvgHours)} hrs)`)
       .join("\n");
     result += "\n";
   }
@@ -855,9 +799,7 @@ function formatServiceStats(data) {
   // Frequent issues
   if (data.descriptionStats.length > 0) {
     result += `- Frequent issues:\n`;
-    result += data.descriptionStats
-      .map((desc) => `  ${desc.Description}: ${num0(desc.Count)} occurrences`)
-      .join("\n");
+    result += data.descriptionStats.map((desc) => `  ${desc.Description}: ${num0(desc.Count)} occurrences`).join("\n");
     result += "\n";
   }
 
@@ -890,9 +832,7 @@ function prepareNetworkSummary(selectedServices) {
   // Prepare summary lines
   let summary = "";
   for (const service of selectedServices) {
-    const connections = connectionCounts[service]
-      ? Array.from(connectionCounts[service])
-      : [];
+    const connections = connectionCounts[service] ? Array.from(connectionCounts[service]) : [];
     summary += `- ${service} connections: ${connections.join(", ") || "None"}\n`;
   }
 
@@ -908,10 +848,6 @@ function initializeTooltips() {
   }
 
   // Initialize new tooltips
-  const tooltipTriggerList = [].slice.call(
-    document.querySelectorAll('[data-bs-toggle="tooltip"]')
-  );
-  tooltipTriggerList.map(
-    (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
-  );
+  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.map((tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl));
 }
