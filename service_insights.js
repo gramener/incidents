@@ -57,7 +57,31 @@ function extractIncidentData(filteredData) {
   return filteredData.map(d => d["Incident Data"]);
 }
 
- //Generic function to fetch info from LLM
+const detailSection = document.getElementById("detail-section");
+
+// Whenever the user selects a service
+dropdown.addEventListener("change", (e) => {
+  const service = e.target.value;
+  if (service) {
+    // Show the detail boxes
+    detailSection.classList.remove("d-none");
+    updateContent(service); // Your existing logic
+  } else {
+    // Hide the detail boxes if no service is selected
+    detailSection.classList.add("d-none");
+  }
+});
+
+
+
+function delay(ms){
+  return new Promise((resolve)=>{
+    setTimeout(resolve,ms);
+  });
+
+}
+
+// Generic function to fetch info from the LLM
 async function askLLMQuestion(filteredData, questionPrompt, useFullData = false) {
   const selectedService = filteredData[0]?.Service || "Unknown Service";
   const systemMessage = `You are a financial analyst for incident management.
@@ -84,7 +108,7 @@ ${JSON.stringify(dataToSend)}`;
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", 
+        credentials: "include",
         body: JSON.stringify({
           model: "gemini-1.5-pro-latest",
           stream: true,
@@ -123,6 +147,7 @@ function updateUI(upstream, downstream, mainProblem, recurringPatterns) {
   // Problem Description
   problemText.textContent = mainProblem || "No problem description found.";
   recurringList.innerHTML = ""; // clear recurring patterns
+
   if (recurringPatterns && recurringPatterns.recurringPatterns) {
     const rp = recurringPatterns.recurringPatterns;
     const items = [
@@ -152,7 +177,7 @@ function updateUI(upstream, downstream, mainProblem, recurringPatterns) {
   drawNetwork(upstream, downstream);
 }
 
-//Called when user selects a service
+// Called when user selects a service
 async function updateContent(service) {
   if (!service) return;
 
@@ -180,6 +205,9 @@ async function updateContent(service) {
     let upstream = upstreamResponse.upstream || [];
     upstream = upstream.slice(0, 8);
 
+    await delay(1000);
+
+
     // Downstream
     const downstreamResponse = await askLLMQuestion(
       filteredData,
@@ -189,6 +217,8 @@ async function updateContent(service) {
     let downstream = downstreamResponse.downstream || [];
     downstream = downstream.slice(0, 8);
 
+    await delay(1000);
+
     // Main problem
     const mainProblemResponse = await askLLMQuestion(
       filteredData,
@@ -196,6 +226,9 @@ async function updateContent(service) {
       false
     );
     const mainProblem = mainProblemResponse.mainProblem || "No problem identified.";
+
+    await delay(1000);
+
 
     // Recurring patterns
     const recurringPatternsResponse = await askLLMQuestion(
@@ -215,7 +248,7 @@ async function updateContent(service) {
   }
 }
 
-//Draw (or update) the network diagram
+// Draw (or update) the network diagram
 function drawNetwork(upstream, downstream, numIncidents = 0) {
   // If no CSV loaded or no data yet, just clear the network
   if (!upstream.length && !downstream.length && !numIncidents) {
@@ -278,7 +311,7 @@ function drawNetwork(upstream, downstream, numIncidents = 0) {
       shape: "box",
       borderWidth: 2,
       color: { border: "orange", background: "#fff" },
-      font: { color: "black", face: "arial", size: 16 },
+      font: { color: "black", face: "arial", size: 20 },
       x: startX_down + i * spacing,
       y: 100,
       fixed: false
@@ -322,6 +355,3 @@ function drawNetwork(upstream, downstream, numIncidents = 0) {
   if (networkInstance) networkInstance.destroy();
   networkInstance = new vis.Network(container, dataVis, options);
 }
-
-// Listen for dropdown changes
-dropdown.addEventListener("change", (e) => updateContent(e.target.value));
