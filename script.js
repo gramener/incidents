@@ -36,7 +36,7 @@ const filters = {};
 
 // Constants for filters and pre-selected services and regions
 const filterKeys = ["Region", "Shift", "Team", "Service"];
-const preSelectedServices = ["CTR", "LOAN", "Risk", "GRT", "LIQ", "Rates", "Assets", "Pricing", "TLM", "K2", "Trading"];
+const preSelectedServices = ["CTR","LOGAN","VaR","GRT","LIQ","RWH","Argos","PXV","TLM","K2","TARDIS"];
 const preSelectedRegions = ["Canada", "Ireland", "USA", "UK", "Global", "Singapore", "LATAM"];
 
 // Function to read and parse CSV files

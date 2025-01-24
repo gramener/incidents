@@ -8,7 +8,7 @@ const fileInput = document.getElementById("fileInput");
 const dropdown = document.getElementById("serviceDropdown");
 const problemText = document.getElementById("problemText");
 const recurringList = document.getElementById("recurringList");
-const container = document.getElementById("network");
+const container = document.getElementById("network2");
 
 const spinnerHTML = `
   <div class="d-flex align-items-center">
